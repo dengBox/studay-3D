@@ -1,0 +1,96 @@
+onsole.log("caches", caches)
+
+  /* 判断当前浏览器是否支持serviceWorker */
+  if ('serviceWorker' in navigator) {
+    /* 当页面加载完成就创建一个serviceWorker */
+    window.addEventListener('load', function () {
+      // 第一个参数Origin指定serviceworker的脚本文件，该相对路径是相对于Origin目录而非当前JS文件
+      // 第二个参数Config是可选的，可以用来指定你想让 service worker 控制的内容的子目录。默认值'./'
+      // 同一个Origin下，可以注册多个不同scope的Service Worker。
+      navigator.serviceWorker.register('./serviceWorker.js', { scope: './' })
+        .then(function (registration) {
+          // setInterval(() => {//每分钟检查一次serviceWorker.js是否更新
+          //   registration.update();
+          // }, 60000);
+          console.log('register success', registration);
+          navigator.serviceWorker.controller.postMessage("来自页面的信息");
+        })
+        .catch(function (err) {
+          console.log('register fail', err);
+        });
+    });
+
+    navigator.serviceWorker.addEventListener('message', function (event) { console.log(event.data) })
+  }
+
+
+
+
+
+var versionName = "V2";
+// 注册完 Service Worker 之后，浏览器自动安装，在 service worker 文件中可以监听它的 install 事件。
+/* 监听安装事件，install 事件一般是被用来设置你的浏览器的离线缓存逻辑 */
+addEventListener("install", function (event) {
+  console.log("Service Worker install", event);
+  //调试时跳过等待过程
+  // skipWaiting();
+  /* 这个方法接收一个Promise，用于防止缓存完成前serviceWorker就被关闭/休眠 */
+  event.waitUntil(
+    /* 新建或打开名叫V1的缓存版本 */
+    caches.open(versionName).then(function (cache) {
+      /* 指定要缓存的内容，添加进当前指定的缓存版本中*/
+      return cache.addAll([
+        "./test.png",
+        "./serviceWorker.html",
+        "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3155998395,3600507640&fm=26&gp=0.jpg",
+      ]);
+    })
+  );
+});
+
+/* 监听fetch事件以拦截get请求 */
+addEventListener("fetch", function (event) {
+  console.log("try to fetch", event.request);
+  /* 在缓存中匹配对应请求资源,如存在则直接返回,否则照常fetch */
+  event.respondWith(
+    caches.match(event.request).then((res) => {
+      if (!res) console.log("no res");
+      return (
+        res ||
+        fetch(event.request)
+          .then((responese) => {
+            //也可以在此处动态缓存get请求
+            // caches.put(event.request, response);
+            return responese;
+          })
+          .catch((err) => {
+            console.log(err);
+          })
+      );
+    })
+  );
+});
+
+addEventListener("message", function (event) {
+  console.log("message", event.data); // this message is from page
+  event.source.postMessage("来自serviceWorker的信息");
+});
+
+addEventListener("activate", function (event) {
+  console.log("Service Worker activate", event);
+  event.waitUntil(
+    // Cache Stroage 中的缓存不会过期，但是浏览器对它的大小是有限制的，所以需要我们定期进行清理；
+    caches.keys().then((keys) => {
+      //找到所有已存在的缓存版本名的数组
+      console.log("keys", keys);
+      return Promise.all(
+        keys.map((key) => {
+          if (versionName != key) {
+            console.log(key);
+            return caches.delete(key); // 删除之前版本的cache storage
+          }
+        })
+      );
+    })
+  );
+});
