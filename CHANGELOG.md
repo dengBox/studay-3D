@@ -9,6 +9,7 @@
 ### 📝 文档
 范围|描述|commitId
 --|--|--
+ - | 更新文档 | [76ce873](https://github.com/dengBox/studay-3D/commit/76ce873)
  - | 增加文档 | [cc77b4d](https://github.com/dengBox/studay-3D/commit/cc77b4d)
 
 
