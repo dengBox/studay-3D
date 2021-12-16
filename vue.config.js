@@ -19,6 +19,8 @@ const cdn = {
 }
 
 module.exports = {
+  outputDir: 'docs',
+  assetsDir: 'static',
   productionSourceMap: false,
   chainWebpack: config => {
     config.plugins.delete('prefetch')
