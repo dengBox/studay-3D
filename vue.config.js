@@ -19,6 +19,7 @@ const cdn = {
 }
 
 module.exports = {
+  publicPath: './',
   outputDir: 'docs',
   productionSourceMap: false,
   chainWebpack: config => {

@@ -4,6 +4,7 @@
 范围|描述|commitId
 --|--|--
  - | 初始化仓库 | [3fff983](https://github.com/dengBox/studay-3D/commit/3fff983)
+ 增加文档 | 增加文档 | [96064be](https://github.com/dengBox/studay-3D/commit/96064be)
 
 
 ### 📝 文档
